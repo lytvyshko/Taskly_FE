@@ -1,12 +1,10 @@
 import { createTheme } from '@mui/material/styles';
+import { palette } from './palette';
+import { typography } from './typography';
+import { components } from '@/theme/components.ts';
 
 export const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#9c27b0',
-    },
-  },
+  palette,
+  typography,
+  components,
 });
