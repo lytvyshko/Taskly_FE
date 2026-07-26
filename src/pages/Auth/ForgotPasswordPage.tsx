@@ -3,7 +3,7 @@ import { Link } from '@mui/material';
 import { Box, Divider, Typography, IconButton } from '@mui/material';
 import { ArrowBackOutlined } from '@mui/icons-material';
 import forgotPasswordImage from '@/assets/forgot-password.png';
-import ForgotPasswordForm from '@/features/auth/components/ForgotPasswordForm.tsx';
+import ForgotPasswordForm from '@/components/ForgotPasswordForm.tsx';
 
 export const ForgotPasswordPage = () => {
   return (

@@ -1,8 +1,8 @@
 import { Box, Divider, IconButton, Link, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router';
 import { ArrowBackOutlined } from '@mui/icons-material';
-import signUpImage from '@/assets/sign-up1.png';
-import { SignUpForm } from '@/features/auth/components/SignUpForm.tsx';
+import signUpImage from '@/assets/sign-up.png';
+import { SignUpForm } from '@/components/SignUpForm.tsx';
 
 export const SignUpPage = () => {
   return (

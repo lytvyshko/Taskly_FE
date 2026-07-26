@@ -1,6 +1,6 @@
 import { Box, Link, Typography } from '@mui/material';
 import loginImage from '@/assets/login-tasks.png';
-import LoginForm from '@/features/auth/components/LoginForm.tsx';
+import LoginForm from '@/components/LoginForm.tsx';
 import { Link as RouterLink } from 'react-router';
 
 export const LoginPage = () => {
