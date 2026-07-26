@@ -10,6 +10,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { ToastContainer } from 'react-toastify';
 import { GlobalLoader } from '@/components/GlobalLoader.tsx';
 
 createRoot(document.getElementById('root')!).render(
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <CssBaseline />
         <GlobalLoader />
         <RouterProvider router={router} />
+        <ToastContainer />
       </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>,

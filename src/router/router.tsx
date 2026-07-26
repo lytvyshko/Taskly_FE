@@ -6,6 +6,7 @@ import ProtectedRoute from '@/router/ProtectedRoute.tsx';
 import { TasksPage } from '@/pages/Tasks/TasksPage.tsx';
 import AppLayout from '@/router/AppLayout.tsx';
 import { SignUpPage } from '@/pages/Auth/SignUpPage.tsx';
+import { CheckEmail } from '@/pages/Auth/CheckEmail.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
           {
             path: 'sign-up',
             element: <SignUpPage />,
+          },
+          {
+            path: 'check-email',
+            element: <CheckEmail />,
           },
         ],
       },

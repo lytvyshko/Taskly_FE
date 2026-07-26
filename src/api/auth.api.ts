@@ -1,5 +1,16 @@
 import { api } from './axios';
-import type { LoginRequest, LoginResponse } from '../types/auth.types';
+import type {
+  SignUpRequest,
+  SignUpResponse,
+  LoginRequest,
+  LoginResponse,
+} from '../types/auth.types';
+
+export const signUp = async (data: SignUpRequest): Promise<SignUpResponse> => {
+  const response = await api.post<SignUpResponse>('/auth/register', data);
+
+  return response.data;
+};
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   const response = await api.post<LoginResponse>('/auth/login', data);
@@ -14,4 +25,8 @@ export const refresh = async () => {
   const { data } = await api.post('/auth/refresh');
 
   return data;
+};
+
+export const resendEmailVerification = async (email: string) => {
+  await api.post('/auth/resend-verification', { email });
 };

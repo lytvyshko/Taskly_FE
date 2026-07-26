@@ -18,6 +18,7 @@ import { type SignUpFormData, signUpSchema } from '@/schemas/signUpSchema.ts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
+import { useSignUp } from '@/hooks/useSignUp.ts';
 
 export const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,8 +30,10 @@ export const SignUpForm = () => {
     resolver: zodResolver(signUpSchema),
   });
 
+  const { mutate: signUp, isPending } = useSignUp();
+
   const onSubmit = (data: SignUpFormData) => {
-    console.log(data);
+    signUp(data);
   };
 
   return (
@@ -144,7 +147,13 @@ export const SignUpForm = () => {
         </Stack>
 
         <Box sx={{ pt: 2 }}>
-          <Button type="submit" variant="contained" sx={{ py: 1.5 }} fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ py: 1.5, borderRadius: 2 }}
+            fullWidth
+            loading={isPending}
+          >
             Sign up
           </Button>
         </Box>
