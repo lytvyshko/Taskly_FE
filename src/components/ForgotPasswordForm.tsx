@@ -61,7 +61,12 @@ export default function ForgotPasswordForm() {
         </Stack>
 
         <Box sx={{ pt: 2 }}>
-          <Button type="submit" variant="contained" sx={{ py: 1.5 }} fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ py: 1.5, borderRadius: 2 }}
+            fullWidth
+          >
             Send reset link
           </Button>
         </Box>

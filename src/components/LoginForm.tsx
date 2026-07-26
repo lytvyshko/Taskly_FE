@@ -137,7 +137,7 @@ export default function LoginForm() {
           <Button
             type="submit"
             variant="contained"
-            sx={{ py: 1.5 }}
+            sx={{ py: 1.5, borderRadius: 2 }}
             loading={isPending}
             fullWidth
           >
