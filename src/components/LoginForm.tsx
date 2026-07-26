@@ -1,39 +1,41 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@mui/material';
+import TextField from '@mui/material/TextField';
+
+import { loginSchema, type LoginFormData } from '@/schemas/loginSchema.ts';
 import {
   Box,
-  IconButton,
-  InputAdornment,
   Stack,
   Typography,
+  InputAdornment,
+  IconButton,
+  Link,
 } from '@mui/material';
-import TextField from '@mui/material/TextField';
 import {
   EmailOutlined,
   LockOutlined,
-  PersonOutlined,
-  VisibilityOffOutlined,
   VisibilityOutlined,
+  VisibilityOffOutlined,
 } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import {
-  type SignUpFormData,
-  signUpSchema,
-} from '@/features/auth/schemas/signUpSchema.ts';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import Button from '@mui/material/Button';
+import { useLogin } from '@/hooks/useLogin';
 
-export const SignUpForm = () => {
+export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    console.log(data);
+  const { mutate: login, isPending } = useLogin();
+
+  const onSubmit = async (data: LoginFormData) => {
+    login(data);
   };
 
   return (
@@ -48,31 +50,6 @@ export const SignUpForm = () => {
       }}
     >
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={0.5}>
-        <Stack spacing={0.5}>
-          <Typography variant="body2">Name</Typography>
-
-          <TextField
-            placeholder="Enter your name"
-            {...register('name')}
-            error={!!errors.name}
-            helperText={errors.name?.message || ' '}
-            fullWidth
-            slotProps={{
-              input: {
-                sx: {
-                  '& input': {
-                    py: 1.5,
-                  },
-                },
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonOutlined />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </Stack>
         <Stack spacing={0.5}>
           <Typography variant="body2">Email</Typography>
 
@@ -107,10 +84,7 @@ export const SignUpForm = () => {
             placeholder="Enter your password"
             {...register('password')}
             error={!!errors.password}
-            helperText={
-              errors.password?.message ??
-              'At least 8 characters with a number or symbol'
-            }
+            helperText={errors.password?.message}
             fullWidth
             slotProps={{
               input: {
@@ -144,14 +118,33 @@ export const SignUpForm = () => {
               },
             }}
           />
+
+          <Link
+            component={RouterLink}
+            to="/forgot-password"
+            underline="hover"
+            sx={{
+              alignSelf: 'flex-end',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+            }}
+          >
+            Forgot password?
+          </Link>
         </Stack>
 
         <Box sx={{ pt: 2 }}>
-          <Button type="submit" variant="contained" sx={{ py: 1.5 }} fullWidth>
-            Sign up
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ py: 1.5 }}
+            loading={isPending}
+            fullWidth
+          >
+            Login
           </Button>
         </Box>
       </Stack>
     </Box>
   );
-};
+}

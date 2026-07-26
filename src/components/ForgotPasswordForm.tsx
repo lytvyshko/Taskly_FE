@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import {
   type ForgotPasswordFormData,
   forgotPasswordSchema,
-} from '@/features/auth/schemas/forgotPasswordSchema.ts';
+} from '@/schemas/forgotPasswordSchema.ts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, InputAdornment, Stack, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
