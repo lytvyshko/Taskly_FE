@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { useResendEmailVerification } from '@/hooks/useResendEmailVerification.ts';
 import { useNavigate } from 'react-router-dom';
 
-export const CheckEmail = () => {
+export const CheckEmailPage = () => {
   const navigate = useNavigate();
   const [sendEmailDelay, setSendEmailDelay] = useState(30);
   const location = useLocation();

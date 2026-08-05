@@ -32,3 +32,8 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
 }
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
