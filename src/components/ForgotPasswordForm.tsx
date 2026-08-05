@@ -8,8 +8,24 @@ import { Box, InputAdornment, Stack, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { EmailOutlined } from '@mui/icons-material';
 import Button from '@mui/material/Button';
+import { useMutation } from '@tanstack/react-query';
+import { forgotPassword } from '@/api/auth.api.ts';
+import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
 
 export default function ForgotPasswordForm() {
+  const [sendEmailDelay, setSendEmailDelay] = useState(0);
+
+  useEffect(() => {
+    if (sendEmailDelay === 0) return;
+
+    const timer = setInterval(() => {
+      setSendEmailDelay((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [sendEmailDelay]);
+
   const {
     register,
     handleSubmit,
@@ -18,8 +34,19 @@ export default function ForgotPasswordForm() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
+  const { mutate: forgotPasswordRequest, isPending } = useMutation({
+    mutationFn: forgotPassword,
+    onSuccess: () => {
+      toast.success('Reset link sent successfully');
+      setSendEmailDelay(30);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const onSubmit = (data: ForgotPasswordFormData) => {
-    console.log(data);
+    forgotPasswordRequest(data.email);
   };
 
   return (
@@ -64,10 +91,14 @@ export default function ForgotPasswordForm() {
           <Button
             type="submit"
             variant="contained"
+            loading={isPending}
+            disabled={sendEmailDelay > 0}
             sx={{ py: 1.5, borderRadius: 2 }}
             fullWidth
           >
-            Send reset link
+            {sendEmailDelay > 0
+              ? `Resend in ${sendEmailDelay}s`
+              : 'Send reset link'}
           </Button>
         </Box>
       </Stack>

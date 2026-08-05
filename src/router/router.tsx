@@ -6,7 +6,10 @@ import ProtectedRoute from '@/router/ProtectedRoute.tsx';
 import { TasksPage } from '@/pages/Tasks/TasksPage.tsx';
 import AppLayout from '@/router/AppLayout.tsx';
 import { SignUpPage } from '@/pages/Auth/SignUpPage.tsx';
-import { CheckEmail } from '@/pages/Auth/CheckEmail.tsx';
+import { CheckEmailPage } from '@/pages/Auth/CheckEmailPage.tsx';
+import { EmailVerifiedPage } from '@/pages/Auth/EmailVerifiedPage.tsx';
+import { ResetPasswordPage } from '@/pages/Auth/ResetPasswordPage.tsx';
+import { PasswordUpdatedPage } from '@/pages/Auth/PasswordUpdatedPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +32,19 @@ export const router = createBrowserRouter([
           },
           {
             path: 'check-email',
-            element: <CheckEmail />,
+            element: <CheckEmailPage />,
+          },
+          {
+            path: 'verify-email',
+            element: <EmailVerifiedPage />,
+          },
+          {
+            path: 'reset-password',
+            element: <ResetPasswordPage />,
+          },
+          {
+            path: 'password-reset-success',
+            element: <PasswordUpdatedPage />,
           },
         ],
       },

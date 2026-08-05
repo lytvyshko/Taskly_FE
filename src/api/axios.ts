@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { tokenService } from '../auth/token.service.ts';
 
+const excludedUrls = ['/auth/login', '/auth/register', '/auth/refresh'];
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -22,7 +24,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const shouldSkipRefresh = excludedUrls.some((url) =>
+      originalRequest.url?.includes(url),
+    );
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !shouldSkipRefresh
+    ) {
       originalRequest._retry = true;
 
       try {

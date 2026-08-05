@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(
+    /(?=.*[\d\W])/,
+    'Password must contain at least one number or symbol.',
+  );
+
 export const signUpSchema = z.object({
   name: z
     .string()
@@ -8,13 +16,7 @@ export const signUpSchema = z.object({
 
   email: z.string().email('Invalid email address'),
 
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters.')
-    .regex(
-      /(?=.*[\d\W])/,
-      'Password must contain at least one number or symbol.',
-    ),
+  password: passwordSchema,
 });
 
 export type SignUpFormData = z.infer<typeof signUpSchema>;

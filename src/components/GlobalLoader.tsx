@@ -21,10 +21,17 @@ const dots = [
 ];
 
 export const GlobalLoader = () => {
-  const isAuthLoading =
+  const isLoggingOut =
     useIsMutating({
       mutationKey: ['logout'],
     }) > 0;
+
+  const isVerifyingEmail =
+    useIsMutating({
+      mutationKey: ['email-verify'],
+    }) > 0;
+
+  const isAuthLoading = isLoggingOut || isVerifyingEmail;
 
   if (!isAuthLoading) {
     return null;
