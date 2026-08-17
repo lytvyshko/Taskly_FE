@@ -13,6 +13,7 @@ export function useSignUp() {
       navigate('/check-email', {
         state: {
           email: variables.email,
+          mode: 'sign-up',
         },
       });
     },
