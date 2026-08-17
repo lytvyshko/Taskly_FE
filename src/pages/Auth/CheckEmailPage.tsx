@@ -14,10 +14,13 @@ import { useNavigate } from 'react-router-dom';
 
 export const CheckEmailPage = () => {
   const navigate = useNavigate();
-  const [sendEmailDelay, setSendEmailDelay] = useState(30);
   const location = useLocation();
 
-  const email = location.state?.email;
+  const { email, mode } = location.state ?? {};
+
+  const [sendEmailDelay, setSendEmailDelay] = useState(
+    mode === 'sign-up' ? 30 : 0,
+  );
 
   const { mutate: resendEmail } = useResendEmailVerification();
 
@@ -38,8 +41,11 @@ export const CheckEmailPage = () => {
   }, [email, navigate]);
 
   const handleResendEmail = async () => {
-    resendEmail(email);
-    setSendEmailDelay(30);
+    resendEmail(email, {
+      onSuccess: () => {
+        setSendEmailDelay(30);
+      },
+    });
   };
 
   return (
@@ -71,13 +77,15 @@ export const CheckEmailPage = () => {
         }}
       />
       <Typography variant="h3" sx={{ textAlign: 'center' }}>
-        Check your email
+        {mode === 'login' ? 'Email not verified' : 'Check your email'}
       </Typography>
       <Typography
         variant="subtitle1"
         sx={{ textAlign: 'center', mb: 1, mx: 'auto', color: 'grey.500' }}
       >
-        We've sent a verification link to{' '}
+        {mode === 'login'
+          ? `Try to send a verification link again to ${' '}`
+          : `We've sent a verification link to ${' '}`}
         <Box component="span" sx={{ color: 'primary.main', fontWeight: 600 }}>
           {email}
         </Box>

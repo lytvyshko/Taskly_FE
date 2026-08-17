@@ -1,6 +1,7 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@mui/material';
 import TextField from '@mui/material/TextField';
@@ -23,6 +24,7 @@ import {
 import { useLogin } from '@/hooks/useLogin';
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -32,10 +34,20 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const { mutate: login, isPending } = useLogin();
+  const { mutateAsync: login, isPending } = useLogin();
 
   const onSubmit = async (data: LoginFormData) => {
-    login(data);
+    try {
+      await login(data);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        navigate('/check-email', {
+          state: { email: data.email, mode: 'login' },
+        });
+
+        return;
+      }
+    }
   };
 
   return (
