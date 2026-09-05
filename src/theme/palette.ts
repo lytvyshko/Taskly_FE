@@ -1,6 +1,8 @@
 export const palette = {
   primary: {
     main: '#5957E4',
+    light: '#F0EFFF',
+    lighter: '#EAE8FF',
   },
   secondary: {
     main: '#A2A5B5',
@@ -17,4 +19,13 @@ export const palette = {
     800: '#1D2939',
     900: '#101828',
   },
+  background: {
+    default: '#FAFAFD',
+    paper: '#FFFFFF',
+  },
+  text: {
+    primary: '#20213A',
+    secondary: '#667085',
+  },
+  divider: '#EAECF0',
 };
