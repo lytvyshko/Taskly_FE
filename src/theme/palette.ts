@@ -7,6 +7,9 @@ export const palette = {
   secondary: {
     main: '#A2A5B5',
   },
+  error: {
+    main: '#D76572',
+  },
   grey: {
     50: '#FCFCFD',
     100: '#F2F4F7',

@@ -17,6 +17,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import { UserMenu } from '@/components/UserMenu.tsx';
 
 type NavigationItem = {
   label: string;
@@ -160,6 +161,8 @@ export const NavBar = () => {
             );
           })}
         </List>
+        <Box sx={{ flexGrow: 1 }} />
+        <UserMenu />
       </Box>
 
       <Box
