@@ -28,7 +28,6 @@ export const UserMenu = () => {
   const { user } = useAuth();
   const { mutate: logoutMutation } = useLogout();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  console.log(anchorEl);
 
   const isOpen = Boolean(anchorEl);
   const userName = user?.name || 'User';

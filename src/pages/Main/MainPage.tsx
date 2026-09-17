@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { NavBar } from '@/components/NavBar.tsx';
+import { MobileTopBar } from '@/components/MobileTopBar.tsx';
 
 export const MainPage = () => {
   return (
@@ -13,13 +14,9 @@ export const MainPage = () => {
     >
       <NavBar />
 
-      <Box
-        component="main"
-        sx={{
-          flex: 1,
-          minWidth: 0,
-        }}
-      />
+      <Box component="main" sx={{ flex: 1, minWidth: 0 }}>
+        <MobileTopBar />
+      </Box>
     </Box>
   );
 };
