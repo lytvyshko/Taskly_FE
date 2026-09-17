@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { NavBar } from '@/components/NavBar.tsx';
 import { MobileTopBar } from '@/components/MobileTopBar.tsx';
+import { Tasks } from '@/components/Tasks.tsx';
 
 export const MainPage = () => {
   return (
@@ -16,6 +17,7 @@ export const MainPage = () => {
 
       <Box component="main" sx={{ flex: 1, minWidth: 0 }}>
         <MobileTopBar />
+        <Tasks />
       </Box>
     </Box>
   );
