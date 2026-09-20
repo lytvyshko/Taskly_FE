@@ -16,7 +16,12 @@ const getInitials = (name?: string | null) =>
     .slice(0, 2)
     .toUpperCase() || 'U';
 
-export const MobileTopBar = () => {
+interface Props {
+  searchInput: string;
+  onSearchChange: (value: string) => void;
+}
+
+export const MobileTopBar = ({ searchInput, onSearchChange }: Props) => {
   const { user } = useAuth();
 
   return (
@@ -34,7 +39,9 @@ export const MobileTopBar = () => {
         width: '100%',
       }}
     >
-      <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.75, flexShrink: 0 }}>
+      <Box
+        sx={{ alignItems: 'center', display: 'flex', gap: 0.75, flexShrink: 0 }}
+      >
         <Box
           sx={{
             alignItems: 'center',
@@ -49,12 +56,16 @@ export const MobileTopBar = () => {
         >
           <CheckRounded sx={{ fontSize: 19 }} />
         </Box>
-        <Typography sx={{ color: 'text.primary', fontSize: 17, fontWeight: 800 }}>
+        <Typography
+          sx={{ color: 'text.primary', fontSize: 17, fontWeight: 800 }}
+        >
           Taskly
         </Typography>
       </Box>
 
       <TextField
+        value={searchInput}
+        onChange={(e) => onSearchChange(e.target.value)}
         fullWidth
         hiddenLabel
         placeholder="Search tasks..."

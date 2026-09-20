@@ -1,10 +1,33 @@
 import { useState } from 'react';
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { AddRounded, SearchRounded } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  InputAdornment,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { getTasks } from '@/api/tasks.api.ts';
+import type { Task } from '@/types/task.types.ts';
 
 const taskTabs = ['Planned', 'Today', 'Completed'];
 
-export const Tasks = () => {
+interface Props {
+  searchInput: string;
+  onSearchChange: (value: string) => void;
+}
+
+export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const [activeTab, setActiveTab] = useState(0);
+  const { data: tasks } = useQuery<Task[]>({
+    queryKey: ['tasks'],
+    queryFn: getTasks,
+  });
+
+  console.log('Tasks:', tasks);
 
   return (
     <Box
@@ -18,19 +41,76 @@ export const Tasks = () => {
         width: '100%',
       }}
     >
-      <Typography
-        component="h1"
-        id="tasks-title"
+      <Box
         sx={{
-          color: 'text.primary',
-          fontSize: { xs: 24, md: 28 },
-          fontWeight: 700,
-          lineHeight: 1.25,
+          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'space-between',
           mb: { xs: 1.5, md: 2.25 },
         }}
       >
-        My Tasks
-      </Typography>
+        <Typography
+          component="h1"
+          id="tasks-title"
+          sx={{
+            color: 'text.primary',
+            fontSize: { xs: 24, md: 28 },
+            fontWeight: 700,
+            lineHeight: 1.25,
+          }}
+        >
+          My Tasks
+        </Typography>
+
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: { xs: 'none', md: 'flex' },
+            gap: 1.25,
+          }}
+        >
+          <TextField
+            value={searchInput}
+            onChange={(e) => onSearchChange(e.target.value)}
+            hiddenLabel
+            placeholder="Search tasks..."
+            size="small"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRounded sx={{ color: 'grey.500', fontSize: 19 }} />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{
+              width: 230,
+              '& .MuiOutlinedInput-root': {
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                fontSize: 12,
+                height: 38,
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'divider',
+              },
+            }}
+          />
+          <Button
+            startIcon={<AddRounded />}
+            variant="contained"
+            sx={{
+              borderRadius: 2,
+              minHeight: 38,
+              px: 2,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            New Task
+          </Button>
+        </Box>
+      </Box>
 
       <Box
         sx={{
