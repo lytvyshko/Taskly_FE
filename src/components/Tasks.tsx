@@ -11,9 +11,14 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getTasks } from '@/api/tasks.api.ts';
-import type { Task } from '@/types/task.types.ts';
+import type { Task, TaskTab } from '@/types/task.types.ts';
+import { TasksList } from '@/components/TasksList.tsx';
 
-const taskTabs = ['Planned', 'Today', 'Completed'];
+const taskTabs: { label: string; value: TaskTab }[] = [
+  { label: 'Planned', value: 'planned' },
+  { label: 'Today', value: 'today' },
+  { label: 'Completed', value: 'completed' },
+];
 
 interface Props {
   searchInput: string;
@@ -21,13 +26,12 @@ interface Props {
 }
 
 export const Tasks = ({ searchInput, onSearchChange }: Props) => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState<TaskTab>('planned');
   const { data: tasks } = useQuery<Task[]>({
-    queryKey: ['tasks'],
-    queryFn: getTasks,
+    queryKey: ['tasks', { tab: activeTab, search: searchInput }],
+    queryFn: () =>
+      getTasks({ tab: activeTab, search: searchInput }),
   });
-
-  console.log('Tasks:', tasks);
 
   return (
     <Box
@@ -123,7 +127,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
       >
         <Tabs
           aria-label="Task filters"
-          onChange={(_, value: number) => setActiveTab(value)}
+          onChange={(_, value) => setActiveTab(value as TaskTab)}
           value={activeTab}
           variant="fullWidth"
           sx={{
@@ -136,11 +140,12 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
             },
           }}
         >
-          {taskTabs.map((label) => (
+          {taskTabs.map((tab) => (
             <Tab
               disableRipple
-              key={label}
-              label={label}
+              key={tab.value}
+              label={tab.label}
+              value={tab.value}
               sx={{
                 color: 'text.secondary',
                 fontSize: { xs: 13, sm: 14 },
@@ -158,6 +163,10 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
           ))}
         </Tabs>
       </Box>
+
+      <TasksList
+        tasks={tasks ?? []}
+      />
     </Box>
   );
 };

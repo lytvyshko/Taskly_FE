@@ -1,7 +1,18 @@
 import { api } from './axios';
-import type { Task } from '@/types/task.types.ts';
+import type { Task, TaskTab } from '@/types/task.types.ts';
 
-export const getTasks = async (): Promise<Task[]> => {
-  const response = await api.get<Task[]>('/tasks');
+interface GetTasksParams {
+  search?: string;
+  tab: TaskTab;
+}
+
+export const getTasks = async ({
+  tab,
+  search,
+}: GetTasksParams): Promise<Task[]> => {
+  const response = await api.get<Task[]>('/tasks', {
+    params: { tab, search },
+  });
+
   return response.data;
 };
