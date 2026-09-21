@@ -65,33 +65,35 @@ export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
         </Typography>
       </Box>
 
-      <TextField
-        value={searchInput}
-        onChange={(e) => onSearchChange(e.target.value)}
-        fullWidth
-        hiddenLabel
-        placeholder="Search tasks..."
-        size="small"
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRounded sx={{ color: 'grey.500', fontSize: 19 }} />
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            bgcolor: 'background.default',
-            borderRadius: 2,
-            fontSize: 12,
-            height: 38,
-          },
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
-          minWidth: 0,
-        }}
-      />
+      {page === 'tasks' && (
+        <TextField
+          value={searchInput}
+          onChange={(e) => onSearchChange(e.target.value)}
+          fullWidth
+          hiddenLabel
+          placeholder="Search tasks..."
+          size="small"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRounded sx={{ color: 'grey.500', fontSize: 19 }} />
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              bgcolor: 'background.default',
+              borderRadius: 2,
+              fontSize: 12,
+              height: 38,
+            },
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+            minWidth: 0,
+          }}
+        />
+      )}
 
       <Avatar
         sx={{
@@ -102,6 +104,7 @@ export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
           fontWeight: 700,
           height: 34,
           width: 34,
+          marginLeft: 'auto',
         }}
       >
         {getInitials(user?.name)}
