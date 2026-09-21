@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import {
-  CheckCircleOutlineRounded,
   CheckRounded,
   InboxOutlined,
   SellOutlined,
@@ -35,11 +34,6 @@ const navigationItems: NavigationItem[] = [
     label: 'Tags',
     mobileLabel: 'Tags',
     icon: <SellOutlined />,
-  },
-  {
-    label: 'Completed',
-    mobileLabel: 'Completed',
-    icon: <CheckCircleOutlineRounded />,
   },
   {
     label: 'Settings',

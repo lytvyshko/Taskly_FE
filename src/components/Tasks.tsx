@@ -29,8 +29,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const [activeTab, setActiveTab] = useState<TaskTab>('planned');
   const { data: tasks } = useQuery<Task[]>({
     queryKey: ['tasks', { tab: activeTab, search: searchInput }],
-    queryFn: () =>
-      getTasks({ tab: activeTab, search: searchInput }),
+    queryFn: () => getTasks({ tab: activeTab, search: searchInput }),
   });
 
   return (
@@ -164,9 +163,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
         </Tabs>
       </Box>
 
-      <TasksList
-        tasks={tasks ?? []}
-      />
+      <TasksList tasks={tasks ?? []} />
     </Box>
   );
 };

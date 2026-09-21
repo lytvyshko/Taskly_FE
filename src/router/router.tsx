@@ -9,6 +9,7 @@ import { CheckEmailPage } from '@/pages/Auth/CheckEmailPage.tsx';
 import { EmailVerifiedPage } from '@/pages/Auth/EmailVerifiedPage.tsx';
 import { ResetPasswordPage } from '@/pages/Auth/ResetPasswordPage.tsx';
 import { PasswordUpdatedPage } from '@/pages/Auth/PasswordUpdatedPage.tsx';
+import { AppLayout } from '@/router/AppLayout.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -48,8 +49,13 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/',
-        element: <MainPage />,
+        element: <AppLayout />,
+        children: [
+          {
+            path: '/',
+            element: <MainPage />,
+          },
+        ],
       },
     ],
   },
