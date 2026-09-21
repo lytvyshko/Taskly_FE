@@ -17,11 +17,13 @@ const getInitials = (name?: string | null) =>
     .toUpperCase() || 'U';
 
 interface Props {
+  page: 'tags' | 'tasks';
   searchInput: string;
   onSearchChange: (value: string) => void;
 }
 
-export const MobileTopBar = ({ searchInput, onSearchChange }: Props) => {
+export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
+  console.log(page);
   const { user } = useAuth();
 
   return (

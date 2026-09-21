@@ -3,7 +3,7 @@ import { MobileTopBar } from '@/components/MobileTopBar.tsx';
 import { Tasks } from '@/components/Tasks.tsx';
 import { useState } from 'react';
 
-export const MainPage = () => {
+export const TasksPage = () => {
   const [searchInput, setSearchInput] = useState('');
   return (
     <Box
@@ -14,6 +14,7 @@ export const MainPage = () => {
       }}
     >
       <MobileTopBar
+        page="tasks"
         searchInput={searchInput}
         onSearchChange={setSearchInput}
       />

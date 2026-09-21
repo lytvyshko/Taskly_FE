@@ -104,7 +104,9 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
             startIcon={<AddRounded />}
             variant="contained"
             sx={{
+              alignItems: 'center',
               borderRadius: 2,
+              lineHeight: 1,
               minHeight: 38,
               px: 2,
               whiteSpace: 'nowrap',

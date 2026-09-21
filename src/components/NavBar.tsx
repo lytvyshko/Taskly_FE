@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   CheckRounded,
   InboxOutlined,
@@ -22,6 +23,7 @@ type NavigationItem = {
   label: string;
   mobileLabel: string;
   icon: ReactNode;
+  path?: string;
 };
 
 const navigationItems: NavigationItem[] = [
@@ -29,11 +31,13 @@ const navigationItems: NavigationItem[] = [
     label: 'My Tasks',
     mobileLabel: 'Tasks',
     icon: <InboxOutlined />,
+    path: '/',
   },
   {
     label: 'Tags',
     mobileLabel: 'Tags',
     icon: <SellOutlined />,
+    path: '/tags',
   },
   {
     label: 'Settings',
@@ -43,7 +47,17 @@ const navigationItems: NavigationItem[] = [
 ];
 
 export const NavBar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState('My Tasks');
+
+  const handleNavigation = (item: NavigationItem) => {
+    setActiveItem(item.label);
+
+    if (item.path) {
+      navigate(item.path);
+    }
+  };
 
   return (
     <>
@@ -112,12 +126,14 @@ export const NavBar = () => {
 
         <List disablePadding>
           {navigationItems.map((item) => {
-            const isActive = activeItem === item.label;
+            const isActive = item.path
+              ? location.pathname === item.path
+              : activeItem === item.label;
 
             return (
               <ListItem disablePadding key={item.label} sx={{ mb: 0.5 }}>
                 <ListItemButton
-                  onClick={() => setActiveItem(item.label)}
+                  onClick={() => handleNavigation(item)}
                   selected={isActive}
                   sx={{
                     borderRadius: 2,
@@ -179,12 +195,14 @@ export const NavBar = () => {
         }}
       >
         {navigationItems.map((item) => {
-          const isActive = activeItem === item.label;
+          const isActive = item.path
+            ? location.pathname === item.path
+            : activeItem === item.label;
 
           return (
             <IconButton
               key={item.label}
-              onClick={() => setActiveItem(item.label)}
+              onClick={() => handleNavigation(item)}
               aria-label={item.mobileLabel}
               sx={{
                 alignItems: 'center',

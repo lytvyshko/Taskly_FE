@@ -3,13 +3,14 @@ import PublicRoute from '@/router/PublicRoute.tsx';
 import { LoginPage } from '@/pages/Auth/LoginPage.tsx';
 import { ForgotPasswordPage } from '@/pages/Auth/ForgotPasswordPage.tsx';
 import ProtectedRoute from '@/router/ProtectedRoute.tsx';
-import { MainPage } from '@/pages/Main/MainPage.tsx';
+import { TasksPage } from '@/pages/Tasks/TasksPage.tsx';
 import { SignUpPage } from '@/pages/Auth/SignUpPage.tsx';
 import { CheckEmailPage } from '@/pages/Auth/CheckEmailPage.tsx';
 import { EmailVerifiedPage } from '@/pages/Auth/EmailVerifiedPage.tsx';
 import { ResetPasswordPage } from '@/pages/Auth/ResetPasswordPage.tsx';
 import { PasswordUpdatedPage } from '@/pages/Auth/PasswordUpdatedPage.tsx';
 import { AppLayout } from '@/router/AppLayout.tsx';
+import { TagsPage } from '@/pages/TagsPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -53,7 +54,11 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '/',
-            element: <MainPage />,
+            element: <TasksPage />,
+          },
+          {
+            path: '/tags',
+            element: <TagsPage />,
           },
         ],
       },
