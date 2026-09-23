@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   DeleteOutlineRounded,
+  EditOutlined,
   LabelOutlined,
   MoreVertRounded,
 } from '@mui/icons-material';
@@ -24,6 +25,7 @@ interface TagCardProps {
   isSelected: boolean;
   onToggleSelect: (tagId: number) => void;
   onDelete: (tagId: number) => void;
+  onEdit: (tag: Tag) => void;
 }
 
 export const TagCard = ({
@@ -32,6 +34,7 @@ export const TagCard = ({
   isSelected,
   onToggleSelect,
   onDelete,
+  onEdit,
 }: TagCardProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const colors = tagColors[tag.color] ?? defaultTagColor;
@@ -113,6 +116,19 @@ export const TagCard = ({
         open={isMenuOpen}
         onClose={() => setAnchorEl(null)}
       >
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            onEdit(tag);
+          }}
+        >
+          <ListItemIcon sx={{ color: 'text.secondary', minWidth: 36 }}>
+            <EditOutlined fontSize="small" />
+          </ListItemIcon>
+          <Typography sx={{ color: 'text.primary', fontSize: 14 }}>
+            Edit
+          </Typography>
+        </MenuItem>
         <MenuItem
           onClick={() => {
             setAnchorEl(null);

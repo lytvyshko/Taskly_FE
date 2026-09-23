@@ -21,6 +21,18 @@ export const createTag = async (
   return response.data;
 };
 
+export const updateTag = async (
+  tagId: number,
+  tagData: CreateTagInput,
+): Promise<Omit<Tag, 'task_count'>> => {
+  const response = await api.patch<Omit<Tag, 'task_count'>>(
+    `/tags/${tagId}`,
+    tagData,
+  );
+
+  return response.data;
+};
+
 export const deleteTag = async (tagId: number): Promise<void> => {
   await api.delete(`/tags/${tagId}`);
 };

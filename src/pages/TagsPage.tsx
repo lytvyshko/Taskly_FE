@@ -7,7 +7,13 @@ import {
 } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { createTag, deleteTag, deleteTags, getTags } from '@/api/tags.api.ts';
+import {
+  createTag,
+  deleteTag,
+  deleteTags,
+  getTags,
+  updateTag,
+} from '@/api/tags.api.ts';
 import {
   CreateTagDialog,
   type TagColorOption,
@@ -47,6 +53,8 @@ const tagColorOptions: TagColorOption[] = [
 export const TagsPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingTag, setEditingTag] = useState<Tag | null>(null);
+  const [tagDialogKey, setTagDialogKey] = useState(0);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -69,6 +77,24 @@ export const TagsPage = () => {
       await queryClient.invalidateQueries({ queryKey: ['tags'] });
       setIsCreateDialogOpen(false);
       toast.success('Tag created successfully');
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+  const { mutate: updateTagMutation, isPending: isUpdatingTag } = useMutation({
+    mutationFn: ({
+      tagId,
+      tagData,
+    }: {
+      tagId: number;
+      tagData: CreateTagInput;
+    }) => updateTag(tagId, tagData),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tags'] });
+      setIsCreateDialogOpen(false);
+      setEditingTag(null);
+      toast.success('Tag updated successfully');
     },
     onError: (error) => {
       toast.error(getErrorMessage(error));
@@ -126,6 +152,34 @@ export const TagsPage = () => {
     setPendingDeleteType('single');
     setPendingDeleteIds([tagId]);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleOpenCreateDialog = () => {
+    setEditingTag(null);
+    setTagDialogKey((currentKey) => currentKey + 1);
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleOpenEditDialog = (tag: Tag) => {
+    setEditingTag(tag);
+    setTagDialogKey((currentKey) => currentKey + 1);
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCloseTagDialog = () => {
+    if (isCreatingTag || isUpdatingTag) return;
+
+    setIsCreateDialogOpen(false);
+    setEditingTag(null);
+  };
+
+  const handleSubmitTag = (tagData: CreateTagInput) => {
+    if (editingTag) {
+      updateTagMutation({ tagId: editingTag.id, tagData });
+      return;
+    }
+
+    createTagMutation(tagData);
   };
 
   const handleOpenBulkDelete = () => {
@@ -236,7 +290,7 @@ export const TagsPage = () => {
                 Select
               </Button>
               <Button
-                onClick={() => setIsCreateDialogOpen(true)}
+                onClick={handleOpenCreateDialog}
                 startIcon={<AddRounded />}
                 variant="contained"
                 sx={{
@@ -310,7 +364,7 @@ export const TagsPage = () => {
           </Button>
 
           <Button
-            onClick={() => setIsCreateDialogOpen(true)}
+            onClick={handleOpenCreateDialog}
             startIcon={<AddRounded />}
             variant="contained"
             sx={{
@@ -365,6 +419,7 @@ export const TagsPage = () => {
                 isSelected={selectedTagIds.includes(tag.id)}
                 onToggleSelect={handleToggleSelect}
                 onDelete={handleOpenSingleDelete}
+                onEdit={handleOpenEditDialog}
               />
             ))}
           </Box>
@@ -413,12 +468,15 @@ export const TagsPage = () => {
       )}
 
       <CreateTagDialog
+        key={tagDialogKey}
         isOpen={isCreateDialogOpen}
-        isSubmitting={isCreatingTag}
+        isSubmitting={isCreatingTag || isUpdatingTag}
+        mode={editingTag ? 'edit' : 'create'}
+        initialTag={editingTag}
         iconOptions={tagIconOptions}
         colorOptions={tagColorOptions}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={createTagMutation}
+        onClose={handleCloseTagDialog}
+        onSubmit={handleSubmitTag}
       />
 
       <DeleteTagsDialog

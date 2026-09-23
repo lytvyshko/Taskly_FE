@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import type { CreateTagInput } from '@/types/tag.types.ts';
+import type { CreateTagInput, Tag } from '@/types/tag.types.ts';
 
 export interface TagIconOption {
   value: string;
@@ -28,6 +28,8 @@ export interface TagColorOption {
 interface CreateTagDialogProps {
   isOpen: boolean;
   isSubmitting: boolean;
+  mode: 'create' | 'edit';
+  initialTag?: Tag | null;
   iconOptions: TagIconOption[];
   colorOptions: TagColorOption[];
   onClose: () => void;
@@ -37,14 +39,20 @@ interface CreateTagDialogProps {
 export const CreateTagDialog = ({
   isOpen,
   isSubmitting,
+  mode,
+  initialTag,
   iconOptions,
   colorOptions,
   onClose,
   onSubmit,
 }: CreateTagDialogProps) => {
-  const [title, setTitle] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState('folder');
-  const [selectedColor, setSelectedColor] = useState('purple');
+  const [title, setTitle] = useState(initialTag?.title ?? '');
+  const [selectedIcon, setSelectedIcon] = useState(
+    initialTag?.icon ?? 'folder',
+  );
+  const [selectedColor, setSelectedColor] = useState(
+    initialTag?.color ?? 'purple',
+  );
   const [titleError, setTitleError] = useState('');
 
   const selectedColorOption =
@@ -104,7 +112,7 @@ export const CreateTagDialog = ({
             pb: 1.5,
           }}
         >
-          Create new tag
+          {mode === 'edit' ? 'Edit tag' : 'Create new tag'}
           <IconButton
             aria-label="Close"
             onClick={onClose}
@@ -364,7 +372,7 @@ export const CreateTagDialog = ({
               minWidth: { sm: 154 },
             }}
           >
-            Create tag
+            {mode === 'edit' ? 'Save changes' : 'Create tag'}
           </Button>
         </DialogActions>
       </Box>
