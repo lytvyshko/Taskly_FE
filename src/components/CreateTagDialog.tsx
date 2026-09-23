@@ -92,18 +92,6 @@ export const CreateTagDialog = ({
         onSubmit={handleSubmit}
         sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}
       >
-        <Box
-          sx={{
-            bgcolor: 'grey.300',
-            borderRadius: 999,
-            display: { xs: 'block', sm: 'none' },
-            height: 4,
-            mx: 'auto',
-            mt: 1.5,
-            width: 40,
-          }}
-        />
-
         <DialogTitle
           sx={{
             alignItems: 'center',

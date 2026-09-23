@@ -20,3 +20,13 @@ export const createTag = async (
 
   return response.data;
 };
+
+export const deleteTag = async (tagId: number): Promise<void> => {
+  await api.delete(`/tags/${tagId}`);
+};
+
+export const deleteTags = async (tagIds: number[]): Promise<void> => {
+  await api.delete('/tags', {
+    data: { ids: tagIds },
+  });
+};

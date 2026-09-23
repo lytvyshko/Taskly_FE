@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <CssBaseline />
         <GlobalLoader />
         <RouterProvider router={router} />
-        <ToastContainer />
+        <ToastContainer autoClose={750} />
       </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>,

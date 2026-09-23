@@ -23,7 +23,6 @@ interface Props {
 }
 
 export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
-  console.log(page);
   const { user } = useAuth();
 
   return (

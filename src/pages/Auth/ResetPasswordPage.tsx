@@ -2,11 +2,8 @@ import { Box, Link, Typography } from '@mui/material';
 import resetPasswordImage from '@/assets/reset-password.png';
 import { ResetPasswordForm } from '@/components/ResetPasswordForm.tsx';
 import { Link as RouterLink } from 'react-router';
-import { useResetPassword } from '@/hooks/useResetPassword.tsx';
 
 export const ResetPasswordPage = () => {
-  const { isSuccess } = useResetPassword();
-  console.log(isSuccess);
   return (
     <Box
       sx={{

@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { AddRounded } from '@mui/icons-material';
+import {
+  AddRounded,
+  ArrowBackRounded,
+  CheckBoxOutlined,
+  DeleteOutlineRounded,
+} from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { createTag, getTags } from '@/api/tags.api.ts';
+import { createTag, deleteTag, deleteTags, getTags } from '@/api/tags.api.ts';
 import {
   CreateTagDialog,
   type TagColorOption,
   type TagIconOption,
 } from '@/components/CreateTagDialog.tsx';
+import { DeleteTagsDialog } from '@/components/DeleteTagsDialog.tsx';
 import { MobileTopBar } from '@/components/MobileTopBar.tsx';
 import { TagCard } from '@/components/TagCard.tsx';
 import { tagColors, tagIcons } from '@/components/tagOptions.tsx';
@@ -41,6 +47,13 @@ const tagColorOptions: TagColorOption[] = [
 export const TagsPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<number[]>([]);
+  const [pendingDeleteType, setPendingDeleteType] = useState<'single' | 'bulk'>(
+    'bulk',
+  );
   const queryClient = useQueryClient();
   const {
     data: tags = [],
@@ -61,6 +74,78 @@ export const TagsPage = () => {
       toast.error(getErrorMessage(error));
     },
   });
+  const { mutate: deleteTagsMutation, isPending: isDeletingTags } = useMutation(
+    {
+      mutationFn: ({
+        ids,
+        type,
+      }: {
+        ids: number[];
+        type: 'single' | 'bulk';
+      }) => (type === 'single' ? deleteTag(ids[0]) : deleteTags(ids)),
+      onSuccess: async (_, variables) => {
+        await queryClient.invalidateQueries({ queryKey: ['tags'] });
+        setIsDeleteDialogOpen(false);
+        setPendingDeleteIds([]);
+        setPendingDeleteType('bulk');
+        setSelectedTagIds([]);
+        setIsSelectionMode(false);
+        toast.success(
+          variables.ids.length === 1
+            ? 'Tag deleted successfully'
+            : `${variables.ids.length} tags deleted successfully`,
+        );
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
+      },
+    },
+  );
+
+  const handleToggleSelect = (tagId: number) => {
+    setSelectedTagIds((currentIds) =>
+      currentIds.includes(tagId)
+        ? currentIds.filter((id) => id !== tagId)
+        : [...currentIds, tagId],
+    );
+  };
+
+  const handleExitSelectionMode = () => {
+    setSelectedTagIds([]);
+    setIsSelectionMode(false);
+  };
+
+  const areAllTagsSelected =
+    tags.length > 0 && selectedTagIds.length === tags.length;
+
+  const handleToggleSelectAll = () => {
+    setSelectedTagIds(areAllTagsSelected ? [] : tags.map((tag) => tag.id));
+  };
+
+  const handleOpenSingleDelete = (tagId: number) => {
+    setPendingDeleteType('single');
+    setPendingDeleteIds([tagId]);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleOpenBulkDelete = () => {
+    if (!selectedTagIds.length) return;
+
+    setPendingDeleteType('bulk');
+    setPendingDeleteIds(selectedTagIds);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteIds.length) return;
+
+    deleteTagsMutation({
+      ids: pendingDeleteIds,
+      type: pendingDeleteType,
+    });
+  };
+
+  const selectedCount = selectedTagIds.length;
 
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100%' }}>
@@ -75,7 +160,7 @@ export const TagsPage = () => {
         aria-labelledby="tags-title"
         sx={{
           mx: 'auto',
-          pb: { xs: 11, md: 4 },
+          pb: { xs: isSelectionMode ? 20 : 11, md: 4 },
           pt: { xs: 2.75, md: 4.5 },
           px: { xs: 2, sm: 3, lg: 5 },
           width: '100%',
@@ -95,6 +180,10 @@ export const TagsPage = () => {
               id="tags-title"
               sx={{
                 color: 'text.primary',
+                display: {
+                  xs: isSelectionMode ? 'none' : 'block',
+                  md: 'block',
+                },
                 fontSize: { xs: 26, md: 32 },
                 fontWeight: 700,
                 lineHeight: 1.2,
@@ -104,12 +193,127 @@ export const TagsPage = () => {
             </Typography>
           </Box>
 
+          {isSelectionMode ? (
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: { xs: 'none', sm: 'flex' },
+                gap: 1,
+              }}
+            >
+              <Typography
+                sx={{ color: 'text.primary', fontSize: 14, fontWeight: 700 }}
+              >
+                {selectedCount} selected
+              </Typography>
+              <Button onClick={handleToggleSelectAll} variant="text">
+                {areAllTagsSelected ? 'Unselect all' : 'Select all'}
+              </Button>
+              <Button onClick={handleExitSelectionMode} variant="outlined">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleOpenBulkDelete}
+                disabled={!selectedCount}
+                startIcon={<DeleteOutlineRounded />}
+                variant="contained"
+                sx={{
+                  bgcolor: 'error.main',
+                  '&:hover': { bgcolor: 'error.main' },
+                }}
+              >
+                Delete
+              </Button>
+            </Box>
+          ) : (
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
+              <Button
+                onClick={() => setIsSelectionMode(true)}
+                startIcon={<CheckBoxOutlined />}
+                variant="outlined"
+                sx={{ whiteSpace: 'nowrap' }}
+              >
+                Select
+              </Button>
+              <Button
+                onClick={() => setIsCreateDialogOpen(true)}
+                startIcon={<AddRounded />}
+                variant="contained"
+                sx={{
+                  alignItems: 'center',
+                  borderRadius: 2,
+                  lineHeight: 1,
+                  minHeight: 38,
+                  px: 2,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                New Tag
+              </Button>
+            </Box>
+          )}
+        </Box>
+
+        {isSelectionMode && (
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: { xs: 'flex', sm: 'none' },
+              gap: 0.75,
+              mt: 1.25,
+            }}
+          >
+            <Button
+              aria-label="Exit selection mode"
+              onClick={handleExitSelectionMode}
+              startIcon={<ArrowBackRounded />}
+              sx={{ minWidth: 0, px: 0.5 }}
+            >
+              {selectedCount} selected
+            </Button>
+            <Button onClick={handleToggleSelectAll} sx={{ ml: 'auto' }}>
+              {areAllTagsSelected ? 'Unselect all' : 'Select all'}
+            </Button>
+          </Box>
+        )}
+
+        <Typography
+          sx={{
+            color: 'text.secondary',
+            display: { xs: isSelectionMode ? 'none' : 'block', sm: 'block' },
+            fontSize: 16,
+            mt: 1.5,
+            mb: { xs: 2, sm: 3 },
+          }}
+        >
+          Organize your tasks with custom tags
+        </Typography>
+
+        <Box
+          sx={{
+            width: '100%',
+            display: {
+              xs: isSelectionMode ? 'none' : 'inline-flex',
+              sm: 'none',
+            },
+            justifyContent: 'space-between',
+            mb: 2.5,
+          }}
+        >
+          <Button
+            onClick={() => setIsSelectionMode(true)}
+            startIcon={<CheckBoxOutlined />}
+            variant="outlined"
+            sx={{ minHeight: 38, whiteSpace: 'nowrap' }}
+          >
+            Select
+          </Button>
+
           <Button
             onClick={() => setIsCreateDialogOpen(true)}
             startIcon={<AddRounded />}
             variant="contained"
             sx={{
-              display: { xs: 'none', sm: 'inline-flex' },
               alignItems: 'center',
               borderRadius: 2,
               lineHeight: 1,
@@ -121,36 +325,6 @@ export const TagsPage = () => {
             New Tag
           </Button>
         </Box>
-
-        <Typography
-          sx={{
-            color: 'text.secondary',
-            fontSize: 16,
-            mt: 1.5,
-            mb: { xs: 2, sm: 3 },
-          }}
-        >
-          Organize your tasks with custom tags
-        </Typography>
-
-        <Button
-          onClick={() => setIsCreateDialogOpen(true)}
-          startIcon={<AddRounded />}
-          variant="contained"
-          sx={{
-            display: { xs: 'inline-flex', sm: 'none' },
-            width: '100%',
-            alignItems: 'center',
-            borderRadius: 2,
-            lineHeight: 1,
-            minHeight: 38,
-            px: 2,
-            whiteSpace: 'nowrap',
-            mb: 2.5,
-          }}
-        >
-          New Tag
-        </Button>
 
         {isLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -184,11 +358,59 @@ export const TagsPage = () => {
             }}
           >
             {tags.map((tag) => (
-              <TagCard key={tag.id} tag={tag} />
+              <TagCard
+                key={tag.id}
+                tag={tag}
+                isSelectionMode={isSelectionMode}
+                isSelected={selectedTagIds.includes(tag.id)}
+                onToggleSelect={handleToggleSelect}
+                onDelete={handleOpenSingleDelete}
+              />
             ))}
           </Box>
         )}
       </Box>
+
+      {isSelectionMode && (
+        <Box
+          sx={{
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            bottom: 68,
+            display: { xs: 'flex', sm: 'none' },
+            gap: 1,
+            left: 0,
+            p: 1.25,
+            position: 'fixed',
+            right: 0,
+            zIndex: 9,
+          }}
+        >
+          <Button
+            onClick={handleExitSelectionMode}
+            variant="outlined"
+            sx={{ flex: 1, minHeight: 42 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleOpenBulkDelete}
+            disabled={!selectedCount}
+            startIcon={<DeleteOutlineRounded />}
+            variant="contained"
+            sx={{
+              bgcolor: 'error.main',
+              flex: 1,
+              minHeight: 42,
+              '&:hover': { bgcolor: 'error.main' },
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      )}
 
       <CreateTagDialog
         isOpen={isCreateDialogOpen}
@@ -197,6 +419,14 @@ export const TagsPage = () => {
         colorOptions={tagColorOptions}
         onClose={() => setIsCreateDialogOpen(false)}
         onSubmit={createTagMutation}
+      />
+
+      <DeleteTagsDialog
+        isOpen={isDeleteDialogOpen}
+        count={pendingDeleteIds.length}
+        isDeleting={isDeletingTags}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
       />
     </Box>
   );

@@ -1,27 +1,68 @@
-import { LabelOutlined } from '@mui/icons-material';
-import { Box, Typography } from '@mui/material';
+import { useState } from 'react';
+import {
+  DeleteOutlineRounded,
+  LabelOutlined,
+  MoreVertRounded,
+} from '@mui/icons-material';
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Typography,
+} from '@mui/material';
 import { tagColors, tagIcons } from '@/components/tagOptions.tsx';
 import type { Tag } from '@/types/tag.types.ts';
 
-const defaultTagColor = tagColors.primary;
+const defaultTagColor = tagColors.purple;
 
-export const TagCard = ({ tag }: { tag: Tag }) => {
+interface TagCardProps {
+  tag: Tag;
+  isSelectionMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: (tagId: number) => void;
+  onDelete: (tagId: number) => void;
+}
+
+export const TagCard = ({
+  tag,
+  isSelectionMode,
+  isSelected,
+  onToggleSelect,
+  onDelete,
+}: TagCardProps) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const colors = tagColors[tag.color] ?? defaultTagColor;
+  const isMenuOpen = Boolean(anchorEl);
 
   return (
     <Box
       sx={{
         alignItems: 'center',
-        bgcolor: 'background.paper',
         border: '1px solid',
-        borderColor: 'divider',
+        borderColor: isSelected ? 'primary.main' : 'divider',
         borderRadius: 2,
         display: 'flex',
         gap: 1.5,
         minHeight: 112,
         p: 2,
+        position: 'relative',
+        bgcolor: isSelected ? 'primary.light' : 'background.paper',
       }}
     >
+      {isSelectionMode && (
+        <Checkbox
+          checked={isSelected}
+          onChange={() => onToggleSelect(tag.id)}
+          size="small"
+          slotProps={{
+            input: { 'aria-label': `Select ${tag.title}` },
+          }}
+          sx={{ p: 0.25 }}
+        />
+      )}
       <Box
         sx={{
           alignItems: 'center',
@@ -57,7 +98,35 @@ export const TagCard = ({ tag }: { tag: Tag }) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Typography sx={{ fontSize: 24 }}>•••</Typography>
+      <IconButton
+        aria-label={`Actions for ${tag.title}`}
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        size="small"
+        sx={{ color: 'grey.500' }}
+      >
+        <MoreVertRounded />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={isMenuOpen}
+        onClose={() => setAnchorEl(null)}
+      >
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            onDelete(tag.id);
+          }}
+        >
+          <ListItemIcon sx={{ color: 'error.main', minWidth: 36 }}>
+            <DeleteOutlineRounded fontSize="small" />
+          </ListItemIcon>
+          <Typography sx={{ color: 'error.main', fontSize: 14 }}>
+            Delete
+          </Typography>
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };
