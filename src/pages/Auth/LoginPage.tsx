@@ -7,6 +7,7 @@ export const LoginPage = () => {
   return (
     <Box
       sx={{
+        maxWidth: 350,
         width: {
           xs: '100%',
           sm: '50%',
