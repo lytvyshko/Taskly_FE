@@ -10,8 +10,15 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { createTask, getTasks } from '@/api/tasks.api.ts';
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+} from '@/api/tasks.api.ts';
+import { DeleteTaskDialog } from '@/components/DeleteTaskDialog.tsx';
 import { getTags } from '@/api/tags.api.ts';
 import { CreateTaskDialog } from '@/components/CreateTaskDialog.tsx';
 import { TasksList } from '@/components/TasksList.tsx';
@@ -31,9 +38,14 @@ interface Props {
 }
 
 export const Tasks = ({ searchInput, onSearchChange }: Props) => {
-  const [activeTab, setActiveTab] = useState<TaskTab>('planned');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const activeTab: TaskTab =
+    tabParam === 'today' || tabParam === 'completed' ? tabParam : 'planned';
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskDialogKey, setTaskDialogKey] = useState(0);
+  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
   const queryClient = useQueryClient();
   const { data: tasks } = useQuery<Task[]>({
     queryKey: ['tasks', { tab: activeTab, search: searchInput }],
@@ -43,6 +55,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
     queryKey: ['tags'],
     queryFn: getTags,
   });
+
   const { mutate: createTaskMutation, isPending: isCreatingTask } =
     useMutation({
       mutationFn: (taskData: CreateTaskInput) => createTask(taskData),
@@ -55,10 +68,70 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
         toast.error(getErrorMessage(error));
       },
     });
+  const { mutate: updateTaskMutation, isPending: isUpdatingTask } =
+    useMutation({
+      mutationFn: ({
+        taskId,
+        taskData,
+      }: {
+        taskId: number;
+        taskData: CreateTaskInput;
+      }) => updateTask(taskId, taskData),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        setIsCreateDialogOpen(false);
+        setEditingTask(null);
+        toast.success('Task updated successfully');
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
+      },
+    });
+  const { mutate: deleteTaskMutation, isPending: isDeletingTask } =
+    useMutation({
+      mutationFn: (taskId: number) => deleteTask(taskId),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        setDeletingTask(null);
+        toast.success('Task deleted successfully');
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
+      },
+    });
 
   const handleOpenCreateDialog = () => {
+    setEditingTask(null);
     setTaskDialogKey((currentKey) => currentKey + 1);
     setIsCreateDialogOpen(true);
+  };
+
+  const handleOpenEditDialog = (task: Task) => {
+    setEditingTask(task);
+    setTaskDialogKey((currentKey) => currentKey + 1);
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    if (isCreatingTask || isUpdatingTask) return;
+
+    setIsCreateDialogOpen(false);
+    setEditingTask(null);
+  };
+
+  const handleSubmitTask = (taskData: CreateTaskInput) => {
+    if (editingTask) {
+      updateTaskMutation({ taskId: editingTask.id, taskData });
+      return;
+    }
+
+    createTaskMutation(taskData);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingTask) return;
+
+    deleteTaskMutation(deletingTask.id);
   };
 
   return (
@@ -93,6 +166,26 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
         >
           My Tasks
         </Typography>
+
+        <Button
+          onClick={handleOpenCreateDialog}
+          startIcon={<AddRounded />}
+          variant="contained"
+          sx={{
+            alignItems: 'center',
+            borderRadius: 2,
+            display: { xs: 'inline-flex', md: 'none' },
+            fontSize: 12,
+            lineHeight: 1,
+            minHeight: 34,
+            minWidth: 0,
+            px: 1.25,
+            whiteSpace: 'nowrap',
+            '& .MuiButton-startIcon': { mr: 0.5 },
+          }}
+        >
+          New Task
+        </Button>
 
         <Box
           sx={{
@@ -158,7 +251,9 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
       >
         <Tabs
           aria-label="Task filters"
-          onChange={(_, value) => setActiveTab(value as TaskTab)}
+          onChange={(_, value) => {
+            setSearchParams({ tab: value as TaskTab });
+          }}
           value={activeTab}
           variant="fullWidth"
           sx={{
@@ -195,15 +290,31 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
         </Tabs>
       </Box>
 
-      <TasksList tasks={tasks ?? []} />
+      <TasksList
+        tasks={tasks ?? []}
+        onEdit={handleOpenEditDialog}
+        onDelete={setDeletingTask}
+      />
 
       <CreateTaskDialog
         key={taskDialogKey}
         isOpen={isCreateDialogOpen}
-        isSubmitting={isCreatingTask}
+        isSubmitting={isCreatingTask || isUpdatingTask}
+        mode={editingTask ? 'edit' : 'create'}
+        initialTask={editingTask}
         tags={tags}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={createTaskMutation}
+        onClose={handleCloseTaskDialog}
+        onSubmit={handleSubmitTask}
+      />
+
+      <DeleteTaskDialog
+        isOpen={Boolean(deletingTask)}
+        isDeleting={isDeletingTask}
+        taskTitle={deletingTask?.title ?? ''}
+        onClose={() => {
+          if (!isDeletingTask) setDeletingTask(null);
+        }}
+        onConfirm={handleConfirmDelete}
       />
     </Box>
   );

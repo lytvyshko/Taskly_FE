@@ -13,6 +13,9 @@ export interface Task {
   description: string | null;
   completed: boolean;
   due_date: string | null;
+  tag_id: number | null;
   tag: string | null;
+  tag_color: string | null;
+  tag_icon: string | null;
   created_at: string;
 }

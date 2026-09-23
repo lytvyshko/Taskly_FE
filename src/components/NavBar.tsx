@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
+  ButtonBase,
   IconButton,
   List,
   ListItem,
@@ -76,13 +77,16 @@ export const NavBar = () => {
           width: 248,
         }}
       >
-        <Box
+        <ButtonBase
+          onClick={() => navigate('/?tab=planned')}
           sx={{
             alignItems: 'center',
+            borderRadius: 1.5,
             display: 'flex',
             gap: 1.25,
             mb: 4,
             px: 1,
+            width: 'fit-content',
           }}
         >
           <Box
@@ -108,7 +112,7 @@ export const NavBar = () => {
           >
             Taskly
           </Typography>
-        </Box>
+        </ButtonBase>
 
         <Typography
           sx={{

@@ -2,10 +2,12 @@ import { CheckRounded, SearchRounded } from '@mui/icons-material';
 import {
   Avatar,
   Box,
+  ButtonBase,
   InputAdornment,
   TextField,
   Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth.ts';
 
 const getInitials = (name?: string | null) =>
@@ -24,6 +26,7 @@ interface Props {
 
 export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -40,8 +43,15 @@ export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
         width: '100%',
       }}
     >
-      <Box
-        sx={{ alignItems: 'center', display: 'flex', gap: 0.75, flexShrink: 0 }}
+      <ButtonBase
+        onClick={() => navigate('/?tab=planned')}
+        sx={{
+          alignItems: 'center',
+          borderRadius: 1.25,
+          display: 'flex',
+          flexShrink: 0,
+          gap: 0.75,
+        }}
       >
         <Box
           sx={{
@@ -62,7 +72,7 @@ export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
         >
           Taskly
         </Typography>
-      </Box>
+      </ButtonBase>
 
       {page === 'tasks' && (
         <TextField

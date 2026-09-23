@@ -20,11 +20,13 @@ import {
 } from '@mui/material';
 import { tagColors, tagIcons } from '@/components/tagOptions.tsx';
 import type { Tag } from '@/types/tag.types.ts';
-import type { CreateTaskInput } from '@/types/task.types.ts';
+import type { CreateTaskInput, Task } from '@/types/task.types.ts';
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
   isSubmitting: boolean;
+  mode: 'create' | 'edit';
+  initialTask?: Task | null;
   tags: Tag[];
   onClose: () => void;
   onSubmit: (taskData: CreateTaskInput) => void;
@@ -44,14 +46,20 @@ const defaultTagColor = tagColors.purple;
 export const CreateTaskDialog = ({
   isOpen,
   isSubmitting,
+  mode,
+  initialTask,
   tags,
   onClose,
   onSubmit,
 }: CreateTaskDialogProps) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(getToday);
-  const [tagId, setTagId] = useState<number | ''>('');
+  const [title, setTitle] = useState(initialTask?.title ?? '');
+  const [description, setDescription] = useState(
+    initialTask?.description ?? '',
+  );
+  const [dueDate, setDueDate] = useState(
+    initialTask?.due_date?.slice(0, 10) ?? getToday(),
+  );
+  const [tagId, setTagId] = useState<number | ''>(initialTask?.tag_id ?? '');
   const [titleError, setTitleError] = useState('');
 
   const selectedTag = tags.find((tag) => tag.id === tagId);
@@ -113,7 +121,7 @@ export const CreateTaskDialog = ({
             pb: 1.5,
           }}
         >
-          Create new task
+          {mode === 'edit' ? 'Edit task' : 'Create new task'}
           <IconButton
             aria-label="Close"
             onClick={onClose}
@@ -304,7 +312,7 @@ export const CreateTaskDialog = ({
               minWidth: { sm: 154 },
             }}
           >
-            Create task
+            {mode === 'edit' ? 'Save changes' : 'Create task'}
           </Button>
         </DialogActions>
       </Box>
