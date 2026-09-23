@@ -9,10 +9,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
-import { getTasks } from '@/api/tasks.api.ts';
-import type { Task, TaskTab } from '@/types/task.types.ts';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { createTask, getTasks } from '@/api/tasks.api.ts';
+import { getTags } from '@/api/tags.api.ts';
+import { CreateTaskDialog } from '@/components/CreateTaskDialog.tsx';
 import { TasksList } from '@/components/TasksList.tsx';
+import type { Tag } from '@/types/tag.types.ts';
+import type { CreateTaskInput, Task, TaskTab } from '@/types/task.types.ts';
+import { getErrorMessage } from '@/utils/getErrorMessage.ts';
 
 const taskTabs: { label: string; value: TaskTab }[] = [
   { label: 'Planned', value: 'planned' },
@@ -27,10 +32,34 @@ interface Props {
 
 export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const [activeTab, setActiveTab] = useState<TaskTab>('planned');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [taskDialogKey, setTaskDialogKey] = useState(0);
+  const queryClient = useQueryClient();
   const { data: tasks } = useQuery<Task[]>({
     queryKey: ['tasks', { tab: activeTab, search: searchInput }],
     queryFn: () => getTasks({ tab: activeTab, search: searchInput }),
   });
+  const { data: tags = [] } = useQuery<Tag[]>({
+    queryKey: ['tags'],
+    queryFn: getTags,
+  });
+  const { mutate: createTaskMutation, isPending: isCreatingTask } =
+    useMutation({
+      mutationFn: (taskData: CreateTaskInput) => createTask(taskData),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        setIsCreateDialogOpen(false);
+        toast.success('Task created successfully');
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
+      },
+    });
+
+  const handleOpenCreateDialog = () => {
+    setTaskDialogKey((currentKey) => currentKey + 1);
+    setIsCreateDialogOpen(true);
+  };
 
   return (
     <Box
@@ -101,6 +130,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
             }}
           />
           <Button
+            onClick={handleOpenCreateDialog}
             startIcon={<AddRounded />}
             variant="contained"
             sx={{
@@ -166,6 +196,15 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
       </Box>
 
       <TasksList tasks={tasks ?? []} />
+
+      <CreateTaskDialog
+        key={taskDialogKey}
+        isOpen={isCreateDialogOpen}
+        isSubmitting={isCreatingTask}
+        tags={tags}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSubmit={createTaskMutation}
+      />
     </Box>
   );
 };
