@@ -39,3 +39,22 @@ export const updateTask = async (
 export const deleteTask = async (taskId: number): Promise<void> => {
   await api.delete(`/tasks/${taskId}`);
 };
+
+export interface BulkUpdateTasksInput {
+  ids: number[];
+  completed?: boolean;
+  dueDate?: string | null;
+  tagId?: number | null;
+}
+
+export const updateTasks = async (
+  taskData: BulkUpdateTasksInput,
+): Promise<void> => {
+  await api.patch('/tasks/bulk', taskData);
+};
+
+export const deleteTasks = async (taskIds: number[]): Promise<void> => {
+  await api.delete('/tasks', {
+    data: { ids: taskIds },
+  });
+};

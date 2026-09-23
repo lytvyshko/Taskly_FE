@@ -23,6 +23,8 @@ const defaultTagColor = tagColors.purple;
 
 interface Props {
   tasks: Task[];
+  selectedTaskIds: number[];
+  onToggleSelect: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
 }
@@ -62,10 +64,14 @@ const formatDateLabel = (date: string | null) => {
 
 const TaskRow = ({
   task,
+  isSelected,
+  onToggleSelect,
   onEdit,
   onDelete,
 }: {
   task: Task;
+  isSelected: boolean;
+  onToggleSelect: (taskId: number) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
 }) => {
@@ -89,8 +95,9 @@ const TaskRow = ({
         },
       }}
     >
-      <Checkbox
-        checked={task.completed}
+    <Checkbox
+      checked={isSelected}
+      onChange={() => onToggleSelect(task.id)}
         icon={<CheckBoxOutlineBlankRounded />}
         checkedIcon={
           <Box
@@ -108,10 +115,9 @@ const TaskRow = ({
             <CheckRounded sx={{ fontSize: 15 }} />
           </Box>
         }
-        slotProps={{
-          input: { 'aria-label': `Complete ${task.title}` },
-        }}
-        readOnly
+      slotProps={{
+        input: { 'aria-label': `Select ${task.title}` },
+      }}
         sx={{
           color: 'grey.400',
           flexShrink: 0,
@@ -275,7 +281,13 @@ const TaskRow = ({
   );
 };
 
-export const TasksList = ({ tasks, onEdit, onDelete }: Props) => {
+export const TasksList = ({
+  tasks,
+  selectedTaskIds,
+  onToggleSelect,
+  onEdit,
+  onDelete,
+}: Props) => {
   if (!tasks.length) {
     return (
       <Box
@@ -300,6 +312,8 @@ export const TasksList = ({ tasks, onEdit, onDelete }: Props) => {
         <TaskRow
           key={task.id}
           task={task}
+          isSelected={selectedTaskIds.includes(task.id)}
+          onToggleSelect={onToggleSelect}
           onEdit={onEdit}
           onDelete={onDelete}
         />

@@ -1,6 +1,5 @@
 import { CheckRounded, SearchRounded } from '@mui/icons-material';
 import {
-  Avatar,
   Box,
   ButtonBase,
   InputAdornment,
@@ -8,15 +7,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/auth/useAuth.ts';
+import { UserMenu } from '@/components/UserMenu.tsx';
 
-const getInitials = (name?: string | null) =>
-  name
-    ?.split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase() || 'U';
 
 interface Props {
   page: 'tags' | 'tasks';
@@ -25,7 +17,6 @@ interface Props {
 }
 
 export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -104,20 +95,9 @@ export const MobileTopBar = ({ page, searchInput, onSearchChange }: Props) => {
         />
       )}
 
-      <Avatar
-        sx={{
-          bgcolor: 'primary.light',
-          color: 'primary.main',
-          flexShrink: 0,
-          fontSize: 12,
-          fontWeight: 700,
-          height: 34,
-          width: 34,
-          marginLeft: 'auto',
-        }}
-      >
-        {getInitials(user?.name)}
-      </Avatar>
+      <Box sx={{ marginLeft: 'auto' }}>
+        <UserMenu compact />
+      </Box>
     </Box>
   );
 };

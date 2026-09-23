@@ -24,7 +24,11 @@ const getInitials = (name?: string | null) =>
     .slice(0, 2)
     .toUpperCase() || 'U';
 
-export const UserMenu = () => {
+interface UserMenuProps {
+  compact?: boolean;
+}
+
+export const UserMenu = ({ compact = false }: UserMenuProps) => {
   const { user } = useAuth();
   const { mutate: logoutMutation } = useLogout();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -36,11 +40,12 @@ export const UserMenu = () => {
   const handleClose = () => setAnchorEl(null);
 
   return (
-    <Box sx={{ position: 'relative', width: '100%' }}>
+    <Box sx={{ position: 'relative', width: compact ? 'auto' : '100%' }}>
       <Box
         component="button"
         type="button"
         onClick={(event) => setAnchorEl(event.currentTarget)}
+        aria-label={compact ? 'Open user menu' : undefined}
         aria-expanded={isOpen}
         aria-haspopup="menu"
         sx={{
@@ -48,15 +53,15 @@ export const UserMenu = () => {
           bgcolor: isOpen ? 'primary.light' : 'background.paper',
           border: '1px solid',
           borderColor: isOpen ? 'primary.main' : 'divider',
-          borderRadius: 2,
+          borderRadius: compact ? '50%' : 2,
           color: 'inherit',
           cursor: 'pointer',
           display: 'flex',
-          gap: 1.25,
-          p: 1.25,
+          gap: compact ? 0 : 1.25,
+          p: compact ? 0.25 : 1.25,
           textAlign: 'left',
           transition: 'border-color .2s, background-color .2s',
-          width: '100%',
+          width: compact ? 'auto' : '100%',
           '&:hover': {
             bgcolor: 'primary.light',
             borderColor: 'primary.main',
@@ -69,54 +74,64 @@ export const UserMenu = () => {
             color: 'primary.main',
             fontSize: 13,
             fontWeight: 700,
-            height: 38,
-            width: 38,
+            height: compact ? 34 : 38,
+            width: compact ? 34 : 38,
           }}
         >
           {getInitials(user?.name)}
         </Avatar>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            sx={{
-              color: 'text.primary',
-              fontSize: 13,
-              fontWeight: 700,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {userName}
-          </Typography>
-          <Typography
-            sx={{
-              color: 'text.secondary',
-              fontSize: 10.5,
-              mt: 0.25,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {userEmail}
-          </Typography>
-        </Box>
-        <KeyboardArrowUpRounded
-          sx={{
-            color: 'grey.500',
-            fontSize: 20,
-            transform: isOpen ? 'none' : 'rotate(180deg)',
-            transition: 'transform .2s',
-          }}
-        />
+        {!compact && (
+          <>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                sx={{
+                  color: 'text.primary',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {userName}
+              </Typography>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: 10.5,
+                  mt: 0.25,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {userEmail}
+              </Typography>
+            </Box>
+            <KeyboardArrowUpRounded
+              sx={{
+                color: 'grey.500',
+                fontSize: 20,
+                transform: isOpen ? 'none' : 'rotate(180deg)',
+                transition: 'transform .2s',
+              }}
+            />
+          </>
+        )}
       </Box>
 
       <Menu
         anchorEl={anchorEl}
         open={isOpen}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{
+          vertical: compact ? 'bottom' : 'top',
+          horizontal: compact ? 'right' : 'left',
+        }}
+        transformOrigin={{
+          vertical: compact ? 'top' : 'bottom',
+          horizontal: compact ? 'right' : 'left',
+        }}
         slotProps={{
           paper: {
             sx: {
@@ -126,27 +141,35 @@ export const UserMenu = () => {
               borderRadius: 2,
               minWidth: 204,
               overflow: 'visible',
-              transform: 'translateY(-10px) !important',
+              transform: compact
+                ? 'translateY(10px) !important'
+                : 'translateY(-10px) !important',
               '&::before': {
                 bgcolor: 'divider',
-                bottom: -10,
-                clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                ...(compact ? { top: -10 } : { bottom: -10 }),
+                clipPath: compact
+                  ? 'polygon(50% 0, 100% 100%, 0 100%)'
+                  : 'polygon(0 0, 100% 0, 50% 100%)',
                 content: '""',
                 height: 10,
-                left: '50%',
+                left: compact ? 'auto' : '50%',
                 position: 'absolute',
-                transform: 'translateX(-50%)',
+                right: compact ? 18 : 'auto',
+                transform: compact ? 'none' : 'translateX(-50%)',
                 width: 20,
               },
               '&::after': {
                 bgcolor: 'background.paper',
-                bottom: -8,
-                clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                ...(compact ? { top: -8 } : { bottom: -8 }),
+                clipPath: compact
+                  ? 'polygon(50% 0, 100% 100%, 0 100%)'
+                  : 'polygon(0 0, 100% 0, 50% 100%)',
                 content: '""',
                 height: 8,
-                left: '50%',
+                left: compact ? 'auto' : '50%',
                 position: 'absolute',
-                transform: 'translateX(-50%)',
+                right: compact ? 20 : 'auto',
+                transform: compact ? 'none' : 'translateX(-50%)',
                 width: 16,
               },
             },
