@@ -1,4 +1,8 @@
-import { DeleteOutlineRounded, CloseRounded } from '@mui/icons-material';
+import {
+  CloseRounded,
+  DeleteOutlineRounded,
+  LabelOutlined,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -9,10 +13,15 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
+import { tagColors, tagIcons } from '@/components/tagOptions.tsx';
+import type { Tag } from '@/types/tag.types.ts';
+
+const defaultTagColor = tagColors.purple;
 
 interface DeleteTagsDialogProps {
   isOpen: boolean;
   count: number;
+  tag?: Tag | null;
   isDeleting: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -21,11 +30,13 @@ interface DeleteTagsDialogProps {
 export const DeleteTagsDialog = ({
   isOpen,
   count,
+  tag,
   isDeleting,
   onClose,
   onConfirm,
 }: DeleteTagsDialogProps) => {
   const isSingle = count === 1;
+  const colors = tag ? tagColors[tag.color] ?? defaultTagColor : null;
 
   return (
     <Dialog
@@ -89,6 +100,47 @@ export const DeleteTagsDialog = ({
       </DialogTitle>
 
       <DialogContent sx={{ px: { xs: 2.5, sm: 3 }, py: 1 }}>
+        {isSingle && tag && colors && (
+          <Box
+            sx={{
+              alignItems: 'center',
+              bgcolor: colors.background,
+              borderRadius: 2,
+              display: 'flex',
+              gap: 1.25,
+              mb: 1.5,
+              p: 1.25,
+            }}
+          >
+            <Box
+              sx={{
+                alignItems: 'center',
+                bgcolor: 'background.paper',
+                borderRadius: '50%',
+                color: colors.foreground,
+                display: 'flex',
+                flexShrink: 0,
+                height: 40,
+                justifyContent: 'center',
+                width: 40,
+              }}
+            >
+              {tagIcons[tag.icon] ?? <LabelOutlined />}
+            </Box>
+            <Typography
+              sx={{
+                color: 'text.primary',
+                fontSize: 15,
+                fontWeight: 700,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tag.title}
+            </Typography>
+          </Box>
+        )}
         <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
           {isSingle
             ? 'The selected tag will be removed. Tasks using it will not be deleted.'

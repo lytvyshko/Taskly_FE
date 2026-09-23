@@ -59,6 +59,7 @@ export const TagsPage = () => {
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<number[]>([]);
+  const [pendingDeleteTag, setPendingDeleteTag] = useState<Tag | null>(null);
   const [pendingDeleteType, setPendingDeleteType] = useState<'single' | 'bulk'>(
     'bulk',
   );
@@ -113,6 +114,7 @@ export const TagsPage = () => {
         await queryClient.invalidateQueries({ queryKey: ['tags'] });
         setIsDeleteDialogOpen(false);
         setPendingDeleteIds([]);
+        setPendingDeleteTag(null);
         setPendingDeleteType('bulk');
         setSelectedTagIds([]);
         setIsSelectionMode(false);
@@ -149,8 +151,11 @@ export const TagsPage = () => {
   };
 
   const handleOpenSingleDelete = (tagId: number) => {
+    const tag = tags.find((currentTag) => currentTag.id === tagId) ?? null;
+
     setPendingDeleteType('single');
     setPendingDeleteIds([tagId]);
+    setPendingDeleteTag(tag);
     setIsDeleteDialogOpen(true);
   };
 
@@ -187,6 +192,7 @@ export const TagsPage = () => {
 
     setPendingDeleteType('bulk');
     setPendingDeleteIds(selectedTagIds);
+    setPendingDeleteTag(null);
     setIsDeleteDialogOpen(true);
   };
 
@@ -482,6 +488,7 @@ export const TagsPage = () => {
       <DeleteTagsDialog
         isOpen={isDeleteDialogOpen}
         count={pendingDeleteIds.length}
+        tag={pendingDeleteTag}
         isDeleting={isDeletingTags}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
