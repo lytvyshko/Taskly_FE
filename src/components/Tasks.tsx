@@ -34,6 +34,7 @@ import { tagColors, tagIcons } from '@/components/tagOptions.tsx';
 import { getErrorMessage } from '@/utils/getErrorMessage.ts';
 
 const taskTabs: { label: string; value: TaskTab }[] = [
+  { label: 'All', value: 'all' },
   { label: 'Planned', value: 'planned' },
   { label: 'Today', value: 'today' },
   { label: 'Completed', value: 'completed' },
@@ -59,7 +60,9 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const activeTab: TaskTab =
-    tabParam === 'today' || tabParam === 'completed' ? tabParam : 'planned';
+    tabParam === 'planned' || tabParam === 'today' || tabParam === 'completed'
+      ? tabParam
+      : 'all';
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskDialogKey, setTaskDialogKey] = useState(0);
@@ -72,10 +75,12 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const [bulkDueDate, setBulkDueDate] = useState(getTodayDate);
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { data: tasks } = useQuery<Task[]>({
+  const { data: tasksData } = useQuery({
     queryKey: ['tasks', { tab: activeTab, search: searchInput }],
     queryFn: () => getTasks({ tab: activeTab, search: searchInput }),
   });
+  const tasks = tasksData?.tasks;
+  const taskCounts = tasksData?.counts;
   const { data: tags = [] } = useQuery<Tag[]>({
     queryKey: ['tags'],
     queryFn: getTags,
@@ -351,7 +356,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
             <Tab
               disableRipple
               key={tab.value}
-              label={tab.label}
+              label={`${tab.label} (${taskCounts?.[tab.value] ?? 0})`}
               value={tab.value}
               sx={{
                 color: 'text.secondary',

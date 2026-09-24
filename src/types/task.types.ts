@@ -1,4 +1,11 @@
-export type TaskTab = 'planned' | 'today' | 'completed';
+export type TaskTab = 'all' | 'planned' | 'today' | 'completed';
+
+export type TaskCounts = Record<TaskTab, number>;
+
+export interface GetTasksResponse {
+  tasks: Task[];
+  counts: TaskCounts;
+}
 
 export interface CreateTaskInput {
   title: string;
