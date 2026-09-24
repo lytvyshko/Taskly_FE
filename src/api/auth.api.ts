@@ -1,5 +1,6 @@
 import { api } from './axios';
 import type {
+  ChangePasswordRequest,
   SignUpRequest,
   SignUpResponse,
   LoginRequest,
@@ -47,5 +48,12 @@ export const forgotPassword = async (email: string) => {
 
 export const resetPassword = async (data: ResetPasswordRequest) => {
   const response = await api.post('/auth/reset-password', data);
+  return response.data;
+};
+
+export const changePassword = async (
+  data: ChangePasswordRequest,
+) => {
+  const response = await api.patch('/auth/password', data);
   return response.data;
 };

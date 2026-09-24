@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import {
-  AddRounded,
-  LabelOutlined,
-  SearchRounded,
-} from '@mui/icons-material';
+import { AddRounded, LabelOutlined, SearchRounded } from '@mui/icons-material';
 import {
   Box,
   Button,

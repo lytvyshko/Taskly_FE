@@ -4,4 +4,5 @@ export interface User {
   name: string;
   emailVerified: boolean;
   createdAt: string;
+  avatar_url?: string | null;
 }

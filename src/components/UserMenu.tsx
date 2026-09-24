@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/auth/useAuth.ts';
 import { useLogout } from '@/hooks/useLogout.ts';
+import { ProfileSettingsDialog } from '@/components/ProfileSettingsDialog.tsx';
 
 const getInitials = (name?: string | null) =>
   name
@@ -32,6 +33,8 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
   const { user } = useAuth();
   const { mutate: logoutMutation } = useLogout();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isProfileSettingsOpen, setIsProfileSettingsOpen] =
+    useState(false);
 
   const isOpen = Boolean(anchorEl);
   const userName = user?.name || 'User';
@@ -69,6 +72,8 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
         }}
       >
         <Avatar
+          src={user?.avatar_url ?? undefined}
+          alt={userName}
           sx={{
             bgcolor: 'primary.light',
             color: 'primary.main',
@@ -176,7 +181,13 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
           },
         }}
       >
-        <MenuItem onClick={handleClose} sx={{ minHeight: 52, px: 1.75 }}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            setIsProfileSettingsOpen(true);
+          }}
+          sx={{ minHeight: 52, px: 1.75 }}
+        >
           <ListItemIcon sx={{ color: 'text.primary', minWidth: 36 }}>
             <PersonOutlineRounded fontSize="small" />
           </ListItemIcon>
@@ -204,6 +215,11 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
           </Typography>
         </MenuItem>
       </Menu>
+
+      <ProfileSettingsDialog
+        isOpen={isProfileSettingsOpen}
+        onClose={() => setIsProfileSettingsOpen(false)}
+      />
     </Box>
   );
 };
