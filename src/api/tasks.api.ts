@@ -36,10 +36,6 @@ export const updateTask = async (
   return response.data;
 };
 
-export const deleteTask = async (taskId: number): Promise<void> => {
-  await api.delete(`/tasks/${taskId}`);
-};
-
 export interface BulkUpdateTasksInput {
   ids: number[];
   completed?: boolean;

@@ -27,14 +27,12 @@ import { toast } from 'react-toastify';
 import {
   type BulkUpdateTasksInput,
   createTask,
-  deleteTask,
   deleteTasks,
   getTasks,
   updateTasks,
   updateTask,
 } from '@/api/tasks.api.ts';
-import { DeleteTaskDialog } from '@/components/DeleteTaskDialog.tsx';
-import { DeleteTasksDialog } from '@/components/DeleteTasksDialog.tsx';
+import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog.tsx';
 import { getTags } from '@/api/tags.api.ts';
 import { CreateTaskDialog } from '@/components/CreateTaskDialog.tsx';
 import { TasksList } from '@/components/TasksList.tsx';
@@ -124,19 +122,6 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
       },
     },
   );
-  const { mutate: deleteTaskMutation, isPending: isDeletingTask } = useMutation(
-    {
-      mutationFn: (taskId: number) => deleteTask(taskId),
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        setDeletingTask(null);
-        toast.success('Task deleted successfully');
-      },
-      onError: (error) => {
-        toast.error(getErrorMessage(error));
-      },
-    },
-  );
   const { mutate: updateTasksMutation, isPending: isUpdatingTasks } =
     useMutation({
       mutationFn: ({ taskData }: { taskData: BulkUpdateTasksInput }) =>
@@ -155,11 +140,16 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const { mutate: deleteTasksMutation, isPending: isDeletingTasks } =
     useMutation({
       mutationFn: (taskIds: number[]) => deleteTasks(taskIds),
-      onSuccess: async () => {
+      onSuccess: async (_, taskIds) => {
         await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        setDeletingTask(null);
         setSelectedTaskIds([]);
         setIsBulkDeleteDialogOpen(false);
-        toast.success('Tasks deleted successfully');
+        toast.success(
+          taskIds.length === 1
+            ? 'Task deleted successfully'
+            : 'Tasks deleted successfully',
+        );
       },
       onError: (error) => {
         toast.error(getErrorMessage(error));
@@ -197,7 +187,7 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
   const handleConfirmDelete = () => {
     if (!deletingTask) return;
 
-    deleteTaskMutation(deletingTask.id);
+    deleteTasksMutation([deletingTask.id]);
   };
 
   const selectedTasks = (tasks ?? []).filter((task) =>
@@ -674,22 +664,22 @@ export const Tasks = ({ searchInput, onSearchChange }: Props) => {
         onSubmit={handleSubmitTask}
       />
 
-      <DeleteTaskDialog
-        isOpen={Boolean(deletingTask)}
-        isDeleting={isDeletingTask}
-        taskTitle={deletingTask?.title ?? ''}
-        onClose={() => {
-          if (!isDeletingTask) setDeletingTask(null);
-        }}
-        onConfirm={handleConfirmDelete}
-      />
-
-      <DeleteTasksDialog
-        count={selectedCount}
+      <DeleteConfirmationDialog
+        count={deletingTask ? 1 : selectedCount}
+        isOpen={Boolean(deletingTask) || isBulkDeleteDialogOpen}
         isDeleting={isDeletingTasks}
-        isOpen={isBulkDeleteDialogOpen}
-        onClose={() => setIsBulkDeleteDialogOpen(false)}
-        onConfirm={() => deleteTasksMutation(selectedTaskIds)}
+        taskTitle={deletingTask?.title}
+        onClose={() => {
+          if (isDeletingTasks) return;
+
+          setDeletingTask(null);
+          setIsBulkDeleteDialogOpen(false);
+        }}
+        onConfirm={
+          deletingTask
+            ? handleConfirmDelete
+            : () => deleteTasksMutation(selectedTaskIds)
+        }
       />
     </Box>
   );
